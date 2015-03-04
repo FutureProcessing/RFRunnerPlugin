@@ -16,12 +16,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -47,7 +49,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.jface.action.*;
 import org.eclipse.ui.*;
 import org.eclipse.swt.SWT;
+
 import rfplugin.Activator;
+
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlAdapter;
 
@@ -80,6 +84,21 @@ public class SampleView extends ViewPart {
 			}
 		});
 	}
+	
+	class Sorter extends ViewerSorter {
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if (e1 instanceof String && e2 instanceof String) {
+				String g1 = (String) e1;
+				String g2 = (String) e2;
+				
+				if ( g1 == "Not run")
+					return 1;
+				
+				return g1.compareTo(g2);
+			}
+			return 0;
+		}
+	}
 
 	public class StreamWrapper extends Thread {
 		InputStream inputStream = null;
@@ -100,14 +119,14 @@ public class SampleView extends ViewPart {
 				while ((line = br.readLine()) != null) {
 					out.println(line);
 					int index = tests.indexOf(actualRunTest);
-
+					tests.get(index).setEndTime(System.currentTimeMillis());
+					
 					if (line.contains("PASS") || (line.contains("FAIL"))) {
 						if (line.contains("PASS")) {
 							tests.get(index).setStatus("Passed");
 						} else if (line.contains("FAIL")) {
 							tests.get(index).setStatus("Failed");
 						}
-						tests.get(index).setEndTime(System.currentTimeMillis());
 						runTestAction.setEnabled(true);
 						stopTestAction.setEnabled(false);
 						refresh();
@@ -174,6 +193,7 @@ public class SampleView extends ViewPart {
 		treeViewer.setLabelProvider(new TableLabelProvider());
 		treeViewer.setInput(getViewSite());
 		treeViewer.addFilter(filter);
+		treeViewer.setSorter(new Sorter());
 		treeViewer.expandAll();
 
 		makeActions();
@@ -343,7 +363,8 @@ public class SampleView extends ViewPart {
 			statusItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
 					group = Group.STATUS;
-					refresh();
+					treeViewer.refresh();	
+					treeViewer.expandAll();
 				}
 			});
 			statusItem.setText("Status");
@@ -352,7 +373,8 @@ public class SampleView extends ViewPart {
 			fileItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
 					group = Group.FILE;
-					refresh();
+					treeViewer.refresh(); 
+					treeViewer.expandAll();
 				}
 			});
 			fileItem.setText("File");
@@ -385,6 +407,12 @@ public class SampleView extends ViewPart {
 								.createImage();
 						return img;
 					}
+					
+					if (status.equals("Actual run")) {
+						img = Activator.getImageDescriptor("icons/actualRun.gif")
+								.createImage();
+						return img;
+					}
 
 					img = Activator.getImageDescriptor("icons/notrun.gif")
 							.createImage();
@@ -406,7 +434,7 @@ public class SampleView extends ViewPart {
 				if (element instanceof Test) {
 
 					Test t = (Test) element;
-					if (t.getStatus() != "Not run") {
+					if (t.getStatus() == "Passed" || t.getStatus() == "Failed") {
 						long time = (t.getEndTime() - t.getStartTime()) / 1000;
 						return Long.toString(time) + " s";
 					}
@@ -463,10 +491,22 @@ public class SampleView extends ViewPart {
 		stopTestAction = new Action() {
 			public void run() {
 				try {
+					ISelection selection = treeViewer.getSelection();
+					Object obj = ((IStructuredSelection) selection)
+							.getFirstElement();
+
+					if (obj instanceof Test) {
+						((Test) obj).setStatus("Not run");
+						treeViewer.refresh();
+						treeViewer.expandAll();
+						
+					
 					Runtime.getRuntime().exec("taskkill /F /IM python.exe");
 					MessageConsoleStream out = ConsoleManager
 							.getMessageConsoleStream("Console");
 					out.println("Test Stop");
+					}
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -592,8 +632,12 @@ public class SampleView extends ViewPart {
 						Process proc = rt.exec(command);
 						output = new StreamWrapper(proc.getInputStream(),
 								(Test) obj);
+						selectedTest.setStatus("Actual run");
 						selectedTest.setStartTime(System.currentTimeMillis());
 						output.start();
+						
+						treeViewer.refresh();
+						treeViewer.expandAll(); 
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
