@@ -17,3 +17,10 @@ RFRunnerPlugin helps to run robot framework tests in eclipse.
 6. Insert path to your project
 7. Insert path to pybot (for example: C:\Python27\Scripts\pybot.bat )
 8. Click Ok
+
+License
+=======
+
+    Copyright 2015 Future Processing Sp. z o.o.
+
+    Licensed under The MIT License (MIT), see LICENSE.txt for details.
