@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -70,7 +72,8 @@ public class SampleView extends ViewPart {
 	Filter filter = new Filter();
 
 	public enum Group {
-		STATUS, FILE
+		STATUS, 
+		FILE
 	}
 
 	Group group = Group.STATUS;
@@ -91,7 +94,7 @@ public class SampleView extends ViewPart {
 				String g1 = (String) e1;
 				String g2 = (String) e2;
 
-				if ( g1 == "Not run")
+				if (g1 == "Not run")
 					return 1;
 
 				return g1.compareTo(g2);
@@ -204,7 +207,7 @@ public class SampleView extends ViewPart {
 		parent.addControlListener(new ControlAdapter() {
 			@Override
 			public void controlResized(ControlEvent e) {
-				int parentWidth =  parent.getSize().x;
+				int parentWidth = parent.getSize().x;
 				int scrollWidth = 42;
 				column1.setWidth(parentWidth - column2.getWidth() - scrollWidth);
 			}
@@ -251,7 +254,9 @@ public class SampleView extends ViewPart {
 				ArrayList<File> files) {
 			File directory = new File(directoryName);
 			for (File file : directory.listFiles()) {
-				if (file.isFile()) {
+				if (file.isFile()
+						&& (file.getName().endsWith(".txt") 
+						||  file.getName().endsWith(".robot"))) {
 					files.add(file);
 				} else if (file.isDirectory()) {
 					searchRobotFiles(file.getAbsolutePath(), files);
@@ -280,40 +285,41 @@ public class SampleView extends ViewPart {
 		public Object[] getElements(Object inputElement) {
 			projectPath = getSetting("settings.dat", "ProjectPath");
 			pybotPath = getSetting("settings.dat", "PybotPath");
-			ArrayList<File> array;
+			ArrayList<File> filesArray;
 
 			if (projectPath != null) {
 				try {
-					array = searchRobotFiles(projectPath, new ArrayList<File>());
+					filesArray = searchRobotFiles(projectPath, new ArrayList<File>());
 				} catch (Exception ex) {
 					return new String[] {};
 				}
 
-				if (array.size() > 0) {
-					for (File f : array) {
-						File file = new File(f.getPath());
+				if (!filesArray.isEmpty()) {
+					for (File currentFile : filesArray) {
 						FileReader fileReader = null;
 
 						try {
-							fileReader = new FileReader(file);
-							BufferedReader bufferedReader = new BufferedReader(
-									fileReader);
+							fileReader = new FileReader(currentFile);
+							BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-							String line;
-							while ((line = bufferedReader.readLine()) != null) {
-								if (line.startsWith("Scenario")) {
-
-									String testName = line;
-									Test test = new Test(testName, file,
-											"Not run");
-
-									if (!listContain(tests, line)) {
-										tests.add(test);
+							String currentLine;
+							final String testCasesStarLineRegEx = "\\*+\\s?Test Cases?\\s?\\**";
+							final String testCaseNameRegEx = "^[^\\s|#|*].+";
+							
+							while ((currentLine = bufferedReader.readLine()) != null) {
+								if (Pattern.matches(testCasesStarLineRegEx, currentLine)) {
+									while((currentLine = bufferedReader.readLine()) != null) {								
+										if (Pattern.matches(testCaseNameRegEx, currentLine)) {
+											Test test = new Test(currentLine, currentFile, "Not run");
+											if (!listContain(tests, currentLine)) {
+												tests.add(test);
+											}
+										}
 									}
 								}
 							}
 							fileReader.close();
-
+							bufferedReader.close();
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -363,7 +369,7 @@ public class SampleView extends ViewPart {
 			statusItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
 					group = Group.STATUS;
-					treeViewer.refresh();	
+					treeViewer.refresh();
 					treeViewer.expandAll();
 				}
 			});
@@ -373,7 +379,7 @@ public class SampleView extends ViewPart {
 			fileItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
 					group = Group.FILE;
-					treeViewer.refresh(); 
+					treeViewer.refresh();
 					treeViewer.expandAll();
 				}
 			});
@@ -409,8 +415,8 @@ public class SampleView extends ViewPart {
 					}
 
 					if (status.equals("Actual run")) {
-						img = Activator.getImageDescriptor("icons/actualRun.gif")
-								.createImage();
+						img = Activator.getImageDescriptor(
+								"icons/actualRun.gif").createImage();
 						return img;
 					}
 
@@ -515,7 +521,7 @@ public class SampleView extends ViewPart {
 				stopTestAction.setEnabled(false);
 			}
 		};
-		
+
 		Image stopImage = Activator.getImageDescriptor("icons/stop.gif")
 				.createImage();
 		ImageDescriptor stopImageDescriptor = ImageDescriptor
@@ -541,7 +547,8 @@ public class SampleView extends ViewPart {
 				projectPathPanel.setLayout(new FlowLayout());
 				panel.add(projectPathPanel);
 
-				JLabel projectPathLabel = new JLabel("Project path", JLabel.LEFT);
+				JLabel projectPathLabel = new JLabel("Project path",
+						JLabel.LEFT);
 				projectPathPanel.add(projectPathLabel);
 				JTextField textField = new JTextField(30);
 				projectPathPanel.add(textField);
@@ -553,7 +560,7 @@ public class SampleView extends ViewPart {
 					public void actionPerformed(ActionEvent e) {
 						JFileChooser fileChooser = new JFileChooser();
 						fileChooser
-						.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+								.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 						fileChooser.showOpenDialog(null);
 						textField.setText(fileChooser.getSelectedFile()
 								.toString());
@@ -629,12 +636,9 @@ public class SampleView extends ViewPart {
 						String testName = selectedTest.getTestName();
 						String filePath = selectedTest.getFile().getPath();
 						String pybotCommand = new StringBuilder(pybotPath)
-							.append(" --test ")
-							.append('"')
-							.append(testName)
-							.append('"')
-							.append(' ')
-							.append(filePath).toString();
+								.append(" --test ").append('"')
+								.append(testName).append('"').append(' ')
+								.append(filePath).toString();
 						Process proc = rt.exec(pybotCommand);
 						output = new StreamWrapper(proc.getInputStream(),
 								(Test) obj);
@@ -643,7 +647,7 @@ public class SampleView extends ViewPart {
 						output.start();
 
 						treeViewer.refresh();
-						treeViewer.expandAll(); 
+						treeViewer.expandAll();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
