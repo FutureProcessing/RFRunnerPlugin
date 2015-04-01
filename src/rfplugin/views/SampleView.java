@@ -84,16 +84,16 @@ public class SampleView extends ViewPart {
 			}
 		});
 	}
-	
+
 	class Sorter extends ViewerSorter {
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			if (e1 instanceof String && e2 instanceof String) {
 				String g1 = (String) e1;
 				String g2 = (String) e2;
-				
+
 				if ( g1 == "Not run")
 					return 1;
-				
+
 				return g1.compareTo(g2);
 			}
 			return 0;
@@ -120,7 +120,7 @@ public class SampleView extends ViewPart {
 					out.println(line);
 					int index = tests.indexOf(actualRunTest);
 					tests.get(index).setEndTime(System.currentTimeMillis());
-					
+
 					if (line.contains("PASS") || (line.contains("FAIL"))) {
 						if (line.contains("PASS")) {
 							tests.get(index).setStatus("Passed");
@@ -156,7 +156,7 @@ public class SampleView extends ViewPart {
 
 		Display display = Display.getCurrent();
 		parent.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
-		
+
 		Composite searchMenu = new Composite(parent, SWT.BORDER);
 		searchMenu.setLayout(new GridLayout(2, false));
 		searchMenu.setLayoutData(new GridData(GridData.FILL, GridData.FILL,
@@ -407,7 +407,7 @@ public class SampleView extends ViewPart {
 								.createImage();
 						return img;
 					}
-					
+
 					if (status.equals("Actual run")) {
 						img = Activator.getImageDescriptor("icons/actualRun.gif")
 								.createImage();
@@ -488,6 +488,8 @@ public class SampleView extends ViewPart {
 	}
 
 	private void makeActions() {
+
+		// stopTest
 		stopTestAction = new Action() {
 			public void run() {
 				try {
@@ -499,14 +501,13 @@ public class SampleView extends ViewPart {
 						((Test) obj).setStatus("Not run");
 						treeViewer.refresh();
 						treeViewer.expandAll();
-						
-					
-					Runtime.getRuntime().exec("taskkill /F /IM python.exe");
-					MessageConsoleStream out = ConsoleManager
-							.getMessageConsoleStream("Console");
-					out.println("Test Stop");
+
+						Runtime.getRuntime().exec("taskkill /F /IM python.exe");
+						MessageConsoleStream out = ConsoleManager
+								.getMessageConsoleStream("Console");
+						out.println("Test Stop");
 					}
-					
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -514,6 +515,7 @@ public class SampleView extends ViewPart {
 				stopTestAction.setEnabled(false);
 			}
 		};
+		
 		Image stopImage = Activator.getImageDescriptor("icons/stop.gif")
 				.createImage();
 		ImageDescriptor stopImageDescriptor = ImageDescriptor
@@ -539,9 +541,9 @@ public class SampleView extends ViewPart {
 				projectPathPanel.setLayout(new FlowLayout());
 				panel.add(projectPathPanel);
 
-				JLabel label1 = new JLabel("Project path", JLabel.LEFT);
-				projectPathPanel.add(label1);
-				final JTextField textField = new JTextField(30);
+				JLabel projectPathLabel = new JLabel("Project path", JLabel.LEFT);
+				projectPathPanel.add(projectPathLabel);
+				JTextField textField = new JTextField(30);
 				projectPathPanel.add(textField);
 				textField.setText(projectPath);
 
@@ -551,7 +553,7 @@ public class SampleView extends ViewPart {
 					public void actionPerformed(ActionEvent e) {
 						JFileChooser fileChooser = new JFileChooser();
 						fileChooser
-								.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+						.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 						fileChooser.showOpenDialog(null);
 						textField.setText(fileChooser.getSelectedFile()
 								.toString());
@@ -625,17 +627,21 @@ public class SampleView extends ViewPart {
 					try {
 						Test selectedTest = (Test) obj;
 						String testName = selectedTest.getTestName();
-						String file = selectedTest.getFile().getPath();
-						String pybot = pybotPath + " --test " + "\"" + testName
-								+ "\"" + " " + file;
-						String command = pybot;
-						Process proc = rt.exec(command);
+						String filePath = selectedTest.getFile().getPath();
+						String pybotCommand = new StringBuilder(pybotPath)
+							.append(" --test ")
+							.append('"')
+							.append(testName)
+							.append('"')
+							.append(' ')
+							.append(filePath).toString();
+						Process proc = rt.exec(pybotCommand);
 						output = new StreamWrapper(proc.getInputStream(),
 								(Test) obj);
 						selectedTest.setStatus("Actual run");
 						selectedTest.setStartTime(System.currentTimeMillis());
 						output.start();
-						
+
 						treeViewer.refresh();
 						treeViewer.expandAll(); 
 					} catch (IOException e) {
