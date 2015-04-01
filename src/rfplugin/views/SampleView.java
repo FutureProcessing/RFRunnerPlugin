@@ -308,7 +308,9 @@ public class SampleView extends ViewPart {
 							
 							while ((currentLine = bufferedReader.readLine()) != null) {
 								if (Pattern.matches(testCasesStarLineRegEx, currentLine)) {
-									while((currentLine = bufferedReader.readLine()) != null) {								
+									while((currentLine = bufferedReader.readLine()) != null) {
+										if(currentLine.startsWith("*"))
+											break;
 										if (Pattern.matches(testCaseNameRegEx, currentLine)) {
 											Test test = new Test(currentLine, currentFile, "Not run");
 											if (!listContain(tests, currentLine)) {
