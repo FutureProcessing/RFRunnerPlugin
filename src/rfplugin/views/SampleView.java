@@ -71,11 +71,6 @@ public class SampleView extends ViewPart {
 	Text filterText = null;
 	Filter filter = new Filter();
 
-	public enum Group {
-		STATUS, 
-		FILE
-	}
-
 	Group group = Group.STATUS;
 
 	private TreeViewer treeViewer;
