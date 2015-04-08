@@ -73,7 +73,7 @@ public class SampleView extends ViewPart {
 	Text filterText = null;
 	Filter filter = new Filter();
 
-	Group group = Group.STATUS;
+	GroupType group = GroupType.STATUS;
 	Set<GroupTest> groupsTests = new HashSet();
 	private TreeViewer treeViewer;
 
@@ -319,7 +319,7 @@ public class SampleView extends ViewPart {
 		groupsTests.clear();
 		
 		for (Test test : toList) {
-			if (group.equals(Group.STATUS)) {
+			if (group.equals(GroupType.STATUS)) {
 				if (!groupsTests.contains(new GroupTest(test.getStatus()))){
 					groupsTests.add(new GroupTest(test.getStatus(), test));
 				}
@@ -336,7 +336,7 @@ public class SampleView extends ViewPart {
 				}
 			}
 			
-			else if (group.equals(Group.FILE)) {
+			else if (group.equals(GroupType.FILE)) {
 				if (!groupsTests.contains(new GroupTest(test.getFile().getName()))){
 					groupsTests.add(new GroupTest(test.getFile().getName(), test));
 				}
@@ -367,7 +367,7 @@ public class SampleView extends ViewPart {
 			MenuItem statusItem = new MenuItem(menu, SWT.NONE);
 			statusItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
-					group = Group.STATUS;
+					group = GroupType.STATUS;
 					treeViewer.refresh();
 					treeViewer.expandAll();
 				}
@@ -377,7 +377,7 @@ public class SampleView extends ViewPart {
 			MenuItem fileItem = new MenuItem(menu, SWT.NONE);
 			fileItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
-					group = Group.FILE;
+					group = GroupType.FILE;
 					treeViewer.refresh();
 					treeViewer.expandAll();
 				}
