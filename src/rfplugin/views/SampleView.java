@@ -74,7 +74,7 @@ public class SampleView extends ViewPart {
 	Filter filter = new Filter();
 
 	Group group = Group.STATUS;
-	Set groupsTests = new HashSet();
+	Set<GroupTest> groupsTests = new HashSet();
 	private TreeViewer treeViewer;
 
 	public void refresh() {
@@ -175,7 +175,7 @@ public class SampleView extends ViewPart {
 		column2.setWidth(50);
 
 		treeViewer.setContentProvider(new TreeContentProvider());
-		treeViewer.setLabelProvider(new TableLabelProvider());
+		treeViewer.setLabelProvider(new TableLabelProvider(groupsTests));
 		treeViewer.setInput(getViewSite());
 		treeViewer.addFilter(filter);
 		treeViewer.setSorter(new Sorter());
@@ -196,27 +196,11 @@ public class SampleView extends ViewPart {
 		});
 	}
 
-	public Object[] groupTests(String parentElement) {
-		List<Test> tmp = new ArrayList<Test>();
-		for (Test t : tests) {
-			if (group == Group.STATUS) {
-				if (t.getStatus().contains(parentElement))
-					tmp.add(t);
-			}
-
-			if (group == Group.FILE) {
-				if (t.getFile().getName().contains(parentElement))
-					tmp.add(t);
-			}
-		}
-		return tmp.toArray();
-	}
-
 	public class TreeContentProvider implements ITreeContentProvider {
 		@Override
 		public Object[] getChildren(Object parentElement) {
 			treeViewer.expandAll();
-			return groupTests((String) parentElement);
+			return ((GroupTest) parentElement).tests.toArray();
 		}
 
 		@Override
@@ -228,8 +212,10 @@ public class SampleView extends ViewPart {
 		public boolean hasChildren(Object element) {
 			if (element instanceof Test)
 				return false;
-
-			return true;
+			else if (element instanceof GroupTest)
+				return true;
+			
+			return false;
 		}
 
 		private ArrayList<File> searchRobotFiles(String directoryName,
@@ -314,10 +300,10 @@ public class SampleView extends ViewPart {
 							e.printStackTrace();
 						}
 					}
-					return groupRecords(tests).toArray();
+					return groupTests(tests);
 				}
 			}
-			return new Test[] {};
+			return null;
 		}
 
 		@Override
@@ -329,11 +315,13 @@ public class SampleView extends ViewPart {
 		}
 	}
 
-	private Set<GroupTest> groupRecords(List<Test> toList) {	
+	private Object[] groupTests(List<Test> toList) {	
+		groupsTests.clear();
+		
 		for (Test test : toList) {
-			if (group == Group.STATUS) {
+			if (group.equals(Group.STATUS)) {
 				if (!groupsTests.contains(new GroupTest(test.getStatus()))){
-					groupsTests.add(test.getStatus());
+					groupsTests.add(new GroupTest(test.getStatus(), test));
 				}
 				else {
 					for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext(); ) {
@@ -348,9 +336,9 @@ public class SampleView extends ViewPart {
 				}
 			}
 			
-			if (group == Group.STATUS) {
+			else if (group.equals(Group.FILE)) {
 				if (!groupsTests.contains(new GroupTest(test.getFile().getName()))){
-					groupsTests.add(test.getFile().getName());
+					groupsTests.add(new GroupTest(test.getFile().getName(), test));
 				}
 				else {
 					for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext(); ) {
@@ -365,7 +353,7 @@ public class SampleView extends ViewPart {
 				}
 			}
 		}
-		return groupsTests;
+		return groupsTests.toArray();
 	}
 
 	class MenuCreator implements IMenuCreator {
@@ -401,77 +389,6 @@ public class SampleView extends ViewPart {
 		@Override
 		public Menu getMenu(Menu parent) {
 			return null;
-		}
-	}
-
-	class TableLabelProvider implements ITableLabelProvider {
-		public Image getColumnImage(Object element, int columnIndex) {
-			switch (columnIndex) {
-			case 0:
-				if (element instanceof Test) {
-					Image img;
-					Test t = (Test) element;
-					String status = t.getStatus();
-
-					if (status.equals("Passed")) {
-						img = Activator.getImageDescriptor("icons/pass.gif")
-								.createImage();
-						return img;
-					}
-
-					if (status.equals("Failed")) {
-						img = Activator.getImageDescriptor("icons/fail.gif")
-								.createImage();
-						return img;
-					}
-
-					if (status.equals("Actual run")) {
-						img = Activator.getImageDescriptor(
-								"icons/actualRun.gif").createImage();
-						return img;
-					}
-
-					img = Activator.getImageDescriptor("icons/notrun.gif")
-							.createImage();
-					return img;
-				}
-			}
-			return null;
-		}
-
-		public String getColumnText(Object element, int columnIndex) {
-			switch (columnIndex) {
-			case 0:
-				if (element instanceof Test)
-					return ((Test) element).getTestName();
-				if (element instanceof String)
-					return String.format("%s (%d of %d)", element.toString(),
-							groupTests((String) element).length, tests.size());
-			case 1:
-				if (element instanceof Test) {
-
-					Test t = (Test) element;
-					if (t.getStatus() == "Passed" || t.getStatus() == "Failed") {
-						long time = (t.getEndTime() - t.getStartTime()) / 1000;
-						return Long.toString(time) + " s";
-					}
-					return "-";
-				}
-			}
-			return null;
-		}
-
-		public void addListener(ILabelProviderListener listener) {
-		}
-
-		public void dispose() {
-		}
-
-		public boolean isLabelProperty(Object element, String property) {
-			return false;
-		}
-
-		public void removeListener(ILabelProviderListener listener) {
 		}
 	}
 

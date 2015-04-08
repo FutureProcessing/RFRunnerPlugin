@@ -10,6 +10,11 @@ public class GroupTest {
 	public GroupTest(String groupName) {
 		this.groupName = groupName;
 	}
+	
+	public GroupTest(String groupName, Test test) {
+		this.groupName = groupName;
+		this.tests.add(test);
+	}
 
 	public void AddTest(Test test) {
 		tests.add(test);
