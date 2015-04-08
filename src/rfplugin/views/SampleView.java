@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +74,7 @@ public class SampleView extends ViewPart {
 	Filter filter = new Filter();
 
 	Group group = Group.STATUS;
-
+	Set groupsTests = new HashSet();
 	private TreeViewer treeViewer;
 
 	public void refresh() {
@@ -235,8 +237,8 @@ public class SampleView extends ViewPart {
 			File directory = new File(directoryName);
 			for (File file : directory.listFiles()) {
 				if (file.isFile()
-						&& (file.getName().endsWith(".txt") 
-						||  file.getName().endsWith(".robot"))) {
+						&& (file.getName().endsWith(".txt") || file.getName()
+								.endsWith(".robot"))) {
 					files.add(file);
 				} else if (file.isDirectory()) {
 					searchRobotFiles(file.getAbsolutePath(), files);
@@ -269,7 +271,8 @@ public class SampleView extends ViewPart {
 
 			if (projectPath != null) {
 				try {
-					filesArray = searchRobotFiles(projectPath, new ArrayList<File>());
+					filesArray = searchRobotFiles(projectPath,
+							new ArrayList<File>());
 				} catch (Exception ex) {
 					return new String[] {};
 				}
@@ -280,19 +283,24 @@ public class SampleView extends ViewPart {
 
 						try {
 							fileReader = new FileReader(currentFile);
-							BufferedReader bufferedReader = new BufferedReader(fileReader);
+							BufferedReader bufferedReader = new BufferedReader(
+									fileReader);
 
 							String currentLine;
 							final String testCasesStarLineRegEx = "\\*+\\s?Test Cases?\\s?\\**";
 							final String testCaseNameRegEx = "^[^\\s|#|*].+";
-							
+
 							while ((currentLine = bufferedReader.readLine()) != null) {
-								if (Pattern.matches(testCasesStarLineRegEx, currentLine)) {
-									while((currentLine = bufferedReader.readLine()) != null) {
-										if(currentLine.startsWith("*"))
+								if (Pattern.matches(testCasesStarLineRegEx,
+										currentLine)) {
+									while ((currentLine = bufferedReader
+											.readLine()) != null) {
+										if (currentLine.startsWith("*"))
 											break;
-										if (Pattern.matches(testCaseNameRegEx, currentLine)) {
-											Test test = new Test(currentLine, currentFile, "Not run");
+										if (Pattern.matches(testCaseNameRegEx,
+												currentLine)) {
+											Test test = new Test(currentLine,
+													currentFile, "Not run");
 											if (!listContain(tests, currentLine)) {
 												tests.add(test);
 											}
@@ -321,22 +329,43 @@ public class SampleView extends ViewPart {
 		}
 	}
 
-	private Set<String> groupRecords(List<Test> toList) {
-		Map<String, Test> uniqueMap = new HashMap<String, Test>();
-
-		for (Test to : toList) {
+	private Set<GroupTest> groupRecords(List<Test> toList) {	
+		for (Test test : toList) {
 			if (group == Group.STATUS) {
-				if (!uniqueMap.containsKey(to.getStatus())) {
-					uniqueMap.put(to.getStatus(), to);
+				if (!groupsTests.contains(new GroupTest(test.getStatus()))){
+					groupsTests.add(test.getStatus());
+				}
+				else {
+					for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext(); ) {
+						GroupTest gt = it.next();
+				        if (gt.equals(new GroupTest(test.getStatus()))) {
+				        	List<Test> testsList = gt.tests;
+				        	testsList.add(test);
+				        	gt.tests = testsList;
+				        	break;
+				        }
+				    }
 				}
 			}
-			if (group == Group.FILE) {
-				if (!uniqueMap.containsKey(to.getFile().getName())) {
-					uniqueMap.put(to.getFile().getName(), to);
+			
+			if (group == Group.STATUS) {
+				if (!groupsTests.contains(new GroupTest(test.getFile().getName()))){
+					groupsTests.add(test.getFile().getName());
+				}
+				else {
+					for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext(); ) {
+						GroupTest gt = it.next();
+				        if (gt.equals(new GroupTest(test.getFile().getName()))) {
+				        	List<Test> testsList = gt.tests;
+				        	testsList.add(test);
+				        	gt.tests = testsList;
+				        	break;
+				        }
+				    }
 				}
 			}
 		}
-		return uniqueMap.keySet();
+		return groupsTests;
 	}
 
 	class MenuCreator implements IMenuCreator {
