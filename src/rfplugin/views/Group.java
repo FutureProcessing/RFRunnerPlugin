@@ -3,15 +3,15 @@ package rfplugin.views;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GroupTest {
+public class Group {
 	String groupName;
 	List<Test> tests = new ArrayList<Test>();
 
-	public GroupTest(String groupName) {
+	public Group(String groupName) {
 		this.groupName = groupName;
 	}
 	
-	public GroupTest(String groupName, Test test) {
+	public Group(String groupName, Test test) {
 		this.groupName = groupName;
 		this.tests.add(test);
 	}
@@ -25,11 +25,11 @@ public class GroupTest {
 	}
 
 	public boolean equals(Object obj) {
-		if (!(obj instanceof GroupTest))
+		if (!(obj instanceof Group))
 			return false;
 		if (obj == this)
 			return true;
-		return this.groupName.equals(((GroupTest) obj).groupName);
+		return this.groupName.equals(((Group) obj).groupName);
 	}
 
 	public int hashCode() {

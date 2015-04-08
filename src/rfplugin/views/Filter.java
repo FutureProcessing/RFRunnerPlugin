@@ -20,7 +20,7 @@ public class Filter extends ViewerFilter {
 		ITreeContentProvider provider = (ITreeContentProvider) sviewer
 				.getContentProvider();
 		
-		if (element instanceof GroupTest ) {
+		if (element instanceof Group ) {
 			for (Object child: provider.getChildren(element)) {
 				if (select(viewer, element, child)) 
 					return true; 

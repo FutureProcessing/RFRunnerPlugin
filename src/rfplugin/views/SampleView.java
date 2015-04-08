@@ -74,7 +74,7 @@ public class SampleView extends ViewPart {
 	Filter filter = new Filter();
 
 	GroupType group = GroupType.STATUS;
-	Set<GroupTest> groupsTests = new HashSet();
+	Set<Group> groupsTests = new HashSet();
 	private TreeViewer treeViewer;
 
 	public void refresh() {
@@ -200,7 +200,7 @@ public class SampleView extends ViewPart {
 		@Override
 		public Object[] getChildren(Object parentElement) {
 			treeViewer.expandAll();
-			return ((GroupTest) parentElement).tests.toArray();
+			return ((Group) parentElement).tests.toArray();
 		}
 
 		@Override
@@ -212,7 +212,7 @@ public class SampleView extends ViewPart {
 		public boolean hasChildren(Object element) {
 			if (element instanceof Test)
 				return false;
-			else if (element instanceof GroupTest)
+			else if (element instanceof Group)
 				return true;
 			
 			return false;
@@ -320,13 +320,13 @@ public class SampleView extends ViewPart {
 		
 		for (Test test : toList) {
 			if (group.equals(GroupType.STATUS)) {
-				if (!groupsTests.contains(new GroupTest(test.getStatus()))){
-					groupsTests.add(new GroupTest(test.getStatus(), test));
+				if (!groupsTests.contains(new Group(test.getStatus()))){
+					groupsTests.add(new Group(test.getStatus(), test));
 				}
 				else {
-					for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext(); ) {
-						GroupTest gt = it.next();
-				        if (gt.equals(new GroupTest(test.getStatus()))) {
+					for (Iterator<Group> it = groupsTests.iterator(); it.hasNext(); ) {
+						Group gt = it.next();
+				        if (gt.equals(new Group(test.getStatus()))) {
 				        	List<Test> testsList = gt.tests;
 				        	testsList.add(test);
 				        	gt.tests = testsList;
@@ -337,13 +337,13 @@ public class SampleView extends ViewPart {
 			}
 			
 			else if (group.equals(GroupType.FILE)) {
-				if (!groupsTests.contains(new GroupTest(test.getFile().getName()))){
-					groupsTests.add(new GroupTest(test.getFile().getName(), test));
+				if (!groupsTests.contains(new Group(test.getFile().getName()))){
+					groupsTests.add(new Group(test.getFile().getName(), test));
 				}
 				else {
-					for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext(); ) {
-						GroupTest gt = it.next();
-				        if (gt.equals(new GroupTest(test.getFile().getName()))) {
+					for (Iterator<Group> it = groupsTests.iterator(); it.hasNext(); ) {
+						Group gt = it.next();
+				        if (gt.equals(new Group(test.getFile().getName()))) {
 				        	List<Test> testsList = gt.tests;
 				        	testsList.add(test);
 				        	gt.tests = testsList;

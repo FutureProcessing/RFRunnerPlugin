@@ -10,9 +10,9 @@ import org.eclipse.swt.graphics.Image;
 import rfplugin.Activator;
 
 class TableLabelProvider implements ITableLabelProvider {
-	Set<GroupTest> groupsTests;
+	Set<Group> groupsTests;
 
-	public TableLabelProvider(Set<GroupTest> groupsTests) {
+	public TableLabelProvider(Set<Group> groupsTests) {
 		this.groupsTests = groupsTests;
 	}
 
@@ -55,9 +55,9 @@ class TableLabelProvider implements ITableLabelProvider {
 		case 0:
 			if (element instanceof Test)
 				return ((Test) element).getTestName();
-			if (element instanceof GroupTest)
+			if (element instanceof Group)
 				return String.format("%s (%d of %d)", element.toString(),
-						getGroupSize((GroupTest) element), getAllTests());
+						getGroupSize((Group) element), getAllTests());
 
 		case 1:
 			if (element instanceof Test) {
@@ -86,10 +86,10 @@ class TableLabelProvider implements ITableLabelProvider {
 	public void removeListener(ILabelProviderListener listener) {
 	}
 
-	private int getGroupSize(GroupTest groupName) {
-		for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext();) {
-			GroupTest gt = it.next();
-			if (gt.equals(new GroupTest(groupName.groupName))) {
+	private int getGroupSize(Group groupName) {
+		for (Iterator<Group> it = groupsTests.iterator(); it.hasNext();) {
+			Group gt = it.next();
+			if (gt.equals(new Group(groupName.groupName))) {
 				return gt.tests.size();
 			}
 		}
@@ -98,8 +98,8 @@ class TableLabelProvider implements ITableLabelProvider {
 
 	private int getAllTests() {
 		int count = 0;
-		for (Iterator<GroupTest> it = groupsTests.iterator(); it.hasNext();) {
-			GroupTest gt = it.next();
+		for (Iterator<Group> it = groupsTests.iterator(); it.hasNext();) {
+			Group gt = it.next();
 			count += gt.tests.size();
 		}
 		return count;
