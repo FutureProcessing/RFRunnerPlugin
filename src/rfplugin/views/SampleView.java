@@ -73,7 +73,6 @@ public class SampleView extends ViewPart {
 	Text filterText = null;
 	Filter filter = new Filter();
 
-	GroupType group = GroupType.STATUS;
 	Set<Group> groupsTests = new HashSet();
 	private TreeViewer treeViewer;
 
@@ -165,6 +164,7 @@ public class SampleView extends ViewPart {
 				| SWT.V_SCROLL);
 
 		treeViewer = new TreeViewer(tree);
+		treeViewer.setData("GroupType", GroupType.STATUS);
 		treeViewer.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		TreeColumn column1 = new TreeColumn(tree, SWT.LEFT);
@@ -180,7 +180,7 @@ public class SampleView extends ViewPart {
 		treeViewer.addFilter(filter);
 		treeViewer.setSorter(new Sorter());
 		treeViewer.expandAll();
-
+		
 		makeActions();
 		setDoubleClickAction();
 		createToolbar();
@@ -319,7 +319,7 @@ public class SampleView extends ViewPart {
 		groupsTests.clear();
 		
 		for (Test test : toList) {
-			if (group.equals(GroupType.STATUS)) {
+			if (treeViewer.getData("GroupType").equals(GroupType.STATUS)) {
 				if (!groupsTests.contains(new Group(test.getStatus()))){
 					groupsTests.add(new Group(test.getStatus(), test));
 				}
@@ -336,7 +336,7 @@ public class SampleView extends ViewPart {
 				}
 			}
 			
-			else if (group.equals(GroupType.FILE)) {
+			else if (treeViewer.getData("GroupType").equals(GroupType.FILE)) {
 				if (!groupsTests.contains(new Group(test.getFile().getName()))){
 					groupsTests.add(new Group(test.getFile().getName(), test));
 				}
@@ -354,42 +354,6 @@ public class SampleView extends ViewPart {
 			}
 		}
 		return groupsTests.toArray();
-	}
-
-	class MenuCreator implements IMenuCreator {
-		@Override
-		public void dispose() {
-		}
-
-		@Override
-		public Menu getMenu(Control parent) {
-			Menu menu = new Menu(parent);
-			MenuItem statusItem = new MenuItem(menu, SWT.NONE);
-			statusItem.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
-					group = GroupType.STATUS;
-					treeViewer.refresh();
-					treeViewer.expandAll();
-				}
-			});
-			statusItem.setText("Status");
-
-			MenuItem fileItem = new MenuItem(menu, SWT.NONE);
-			fileItem.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
-					group = GroupType.FILE;
-					treeViewer.refresh();
-					treeViewer.expandAll();
-				}
-			});
-			fileItem.setText("File");
-			return menu;
-		}
-
-		@Override
-		public Menu getMenu(Menu parent) {
-			return null;
-		}
 	}
 
 	private void setSearchListener() {
@@ -417,7 +381,7 @@ public class SampleView extends ViewPart {
 
 		Action act = new Action("Group", SWT.DROP_DOWN) {
 		};
-		act.setMenuCreator(new MenuCreator());
+		act.setMenuCreator(new MenuCreator(treeViewer));
 		manager.add(act);
 	}
 
