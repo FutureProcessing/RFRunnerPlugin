@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.part.*;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.events.ModifyEvent;
@@ -58,6 +59,7 @@ import rfplugin.Activator;
 
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlAdapter;
+import org.osgi.service.prefs.Preferences;
 
 public class SampleView extends ViewPart {
 
@@ -65,7 +67,6 @@ public class SampleView extends ViewPart {
 	private Action runTestAction;
 	private Action stopTestAction;
 	private Action refreshAction;
-	private Action settingsAction;
 
 	private List<Test> tests = new ArrayList<Test>();
 	String projectPath = null;
@@ -233,26 +234,16 @@ public class SampleView extends ViewPart {
 			return files;
 		}
 
-		private String getSetting(String file, String options) {
-			try {
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				String line = br.readLine();
-				while (line != null) {
-					if (line.equals(options)) {
-						return br.readLine();
-					}
-					line = br.readLine();
-				}
-				br.close();
-			} catch (Exception ex) {
+		private void loadPluginSettings() {
+			  Preferences prefs = new InstanceScope().getNode("RFPlugin"); 
+			  projectPath = prefs.get("ProjectPath", "");
+			  pybotPath= prefs.get("PybotPath", "");
 			}
-			return null;
-		}
 
 		@Override
 		public Object[] getElements(Object inputElement) {
-			projectPath = getSetting("settings.dat", "ProjectPath");
-			pybotPath = getSetting("settings.dat", "PybotPath");
+			loadPluginSettings();
+			
 			ArrayList<File> filesArray;
 
 			if (projectPath != null) {
@@ -377,7 +368,7 @@ public class SampleView extends ViewPart {
 		manager.add(runTestAction);
 		manager.add(stopTestAction);
 		manager.add(refreshAction);
-		manager.add(settingsAction);
+		manager.add(new SettingsAction(treeViewer));
 
 		Action act = new Action("Group", SWT.DROP_DOWN) {
 		};
@@ -427,87 +418,6 @@ public class SampleView extends ViewPart {
 			}
 		};
 		refreshAction.setText("Refresh");
-
-		settingsAction = new Action() {
-			public void run() {
-				final JFrame frame = new JFrame("Settings");
-
-				JPanel panel = new JPanel();
-				frame.add(panel);
-
-				JPanel projectPathPanel = new JPanel();
-				projectPathPanel.setLayout(new FlowLayout());
-				panel.add(projectPathPanel);
-
-				JLabel projectPathLabel = new JLabel("Project path",
-						JLabel.LEFT);
-				projectPathPanel.add(projectPathLabel);
-				JTextField textField = new JTextField(30);
-				projectPathPanel.add(textField);
-				textField.setText(projectPath);
-
-				JButton buttonChoose1 = new JButton("Choose");
-				projectPathPanel.add(buttonChoose1);
-				buttonChoose1.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						JFileChooser fileChooser = new JFileChooser();
-						fileChooser
-								.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-						fileChooser.showOpenDialog(null);
-						textField.setText(fileChooser.getSelectedFile()
-								.toString());
-					}
-				});
-
-				JPanel pybotPathPanel = new JPanel();
-				pybotPathPanel.setLayout(new FlowLayout());
-				panel.add(pybotPathPanel);
-
-				JLabel label2 = new JLabel("Pybot path", JLabel.LEFT);
-				pybotPathPanel.add(label2);
-				final JTextField textField2 = new JTextField(30);
-				pybotPathPanel.add(textField2);
-				textField2.setText(pybotPath);
-
-				JButton buttonChoose2 = new JButton("Choose");
-				pybotPathPanel.add(buttonChoose2);
-				buttonChoose2.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						JFileChooser fileChooser = new JFileChooser();
-						fileChooser.showOpenDialog(null);
-						textField2.setText(fileChooser.getSelectedFile()
-								.toString());
-					}
-				});
-
-				JButton button = new JButton("OK");
-				panel.add(button);
-				button.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						projectPath = textField.getText();
-						pybotPath = textField2.getText();
-						try {
-							PrintWriter out = new PrintWriter("settings.dat");
-							out.println("ProjectPath");
-							out.println(projectPath);
-							out.println("PybotPath");
-							out.println(pybotPath);
-							out.close();
-
-							refresh();
-						} catch (FileNotFoundException e1) {
-							e1.printStackTrace();
-						}
-						frame.dispose();
-					}
-				});
-
-				frame.setVisible(true);
-				frame.setSize(550, 170);
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			}
-		};
-		settingsAction.setText("Settings");
 
 		runTestAction = new Action() {
 			public void run() {
