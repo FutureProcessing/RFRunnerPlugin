@@ -364,7 +364,8 @@ public class SampleView extends ViewPart {
 	}
 
 	private void fillLocalToolBar(IToolBarManager manager) {
-		stopTestAction.setEnabled(false);
+		stopTestAction = new StopTestAction(treeViewer, runTestAction);
+		
 		manager.add(runTestAction);
 		manager.add(stopTestAction);
 		manager.add(refreshAction);
@@ -377,39 +378,6 @@ public class SampleView extends ViewPart {
 	}
 
 	private void makeActions() {
-
-		// stopTest
-		stopTestAction = new Action() {
-			public void run() {
-				try {
-					ISelection selection = treeViewer.getSelection();
-					Object obj = ((IStructuredSelection) selection)
-							.getFirstElement();
-
-					if (obj instanceof Test) {
-						((Test) obj).setStatus("Not run");
-						treeViewer.refresh();
-						treeViewer.expandAll();
-
-						Runtime.getRuntime().exec("taskkill /F /IM python.exe");
-						MessageConsoleStream out = ConsoleManager
-								.getMessageConsoleStream("Console");
-						out.println("Test Stop");
-					}
-
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				runTestAction.setEnabled(true);
-				stopTestAction.setEnabled(false);
-			}
-		};
-
-		Image stopImage = Activator.getImageDescriptor("icons/stop.gif")
-				.createImage();
-		ImageDescriptor stopImageDescriptor = ImageDescriptor
-				.createFromImage(stopImage);
-		stopTestAction.setImageDescriptor(stopImageDescriptor);
 
 		refreshAction = new Action() {
 			public void run() {
