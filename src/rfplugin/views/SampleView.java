@@ -73,55 +73,7 @@ public class SampleView extends ViewPart {
 	Text filterText = null;
 	Filter filter = new Filter();
 	TreeContentProvider treeContentProvider;
-
 	private TreeViewer treeViewer;
-
-	public void refresh() {
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				treeViewer.refresh();
-			}
-		});
-	}
-
-	public class StreamWrapper extends Thread {
-		InputStream inputStream = null;
-		Test actualRunTest = null;
-
-		StreamWrapper(InputStream inputStream, Test actualRunTest) {
-			this.inputStream = inputStream;
-			this.actualRunTest = actualRunTest;
-		}
-
-		public void run() {
-			try {
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						inputStream));
-				String line = null;
-				MessageConsoleStream out = ConsoleManager
-						.getMessageConsoleStream("Console");
-				while ((line = br.readLine()) != null) {
-					out.println(line);
-					actualRunTest.setEndTime(System.currentTimeMillis());
-
-					if (line.contains("PASS") || (line.contains("FAIL"))) {
-						if (line.contains("PASS")) {
-							actualRunTest.setStatus("Passed");
-						} else if (line.contains("FAIL")) {
-							actualRunTest.setStatus("Failed");
-						}
-						
-						treeContentProvider.updateTest(actualRunTest);
-						runTestAction.setEnabled(true);
-						stopTestAction.setEnabled(false);
-						refresh();
-					}
-				}
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		}
-	}
 
 	public void createPartControl(Composite parent) {
 		GridData parentData = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -253,7 +205,7 @@ public class SampleView extends ViewPart {
 								.append(filePath).toString();
 						Process proc = rt.exec(pybotCommand);
 						output = new StreamWrapper(proc.getInputStream(),
-								(Test) obj);
+								(Test) obj, treeViewer, treeContentProvider, runTestAction, stopTestAction);
 						selectedTest.setStatus("Actual run");
 						selectedTest.setStartTime(System.currentTimeMillis());
 						output.start();
