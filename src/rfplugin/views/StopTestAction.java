@@ -20,11 +20,14 @@ public class StopTestAction extends Action{
 	ImageDescriptor stopImageDescriptor = ImageDescriptor
 			.createFromImage(stopImage);
 	
-	public StopTestAction(TreeViewer treeViewer, Action runTestAction){
+	public StopTestAction(TreeViewer treeViewer){
 		this.treeViewer = treeViewer;
 		this.setImageDescriptor(stopImageDescriptor);
-		this.runTestAction = runTestAction;
 		this.setEnabled(false);
+	}
+	
+	public void setRunTestAction(Action runTestAction){
+		this.runTestAction = runTestAction;
 	}
 	
 	public void run() {

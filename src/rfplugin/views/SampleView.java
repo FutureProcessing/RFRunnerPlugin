@@ -156,7 +156,8 @@ public class SampleView extends ViewPart {
 	}
 
 	private void fillLocalToolBar(IToolBarManager manager) {
-		stopTestAction = new StopTestAction(treeViewer, runTestAction);
+		((RunTestAction) runTestAction).setStopTestAction(stopTestAction);
+        ((StopTestAction) stopTestAction).setRunTestAction(runTestAction);
 		
 		manager.add(runTestAction);
 		manager.add(stopTestAction);
@@ -170,7 +171,9 @@ public class SampleView extends ViewPart {
 	}
 
 	private void makeActions() {
-
+		runTestAction = new RunTestAction(treeViewer, treeContentProvider);
+		stopTestAction = new StopTestAction(treeViewer);
+		
 		refreshAction = new Action() {
 			public void run() {
 				treeContentProvider.clearTests();
@@ -178,55 +181,6 @@ public class SampleView extends ViewPart {
 			}
 		};
 		refreshAction.setText("Refresh");
-
-		runTestAction = new Action() {
-			public void run() {
-				loadPluginSettings();
-				
-				MessageConsoleStream out = ConsoleManager
-						.getMessageConsoleStream("Console");
-				out.println("");
-
-				ISelection selection = treeViewer.getSelection();
-				Object obj = ((IStructuredSelection) selection)
-						.getFirstElement();
-
-				if (obj instanceof Test) {
-					Runtime rt = Runtime.getRuntime();
-					StreamWrapper output;
-
-					try {
-						Test selectedTest = (Test) obj;
-						String testName = selectedTest.getTestName();
-						String filePath = selectedTest.getFile().getPath();
-						String pybotCommand = new StringBuilder(pybotPath)
-								.append(" --test ").append('"')
-								.append(testName).append('"').append(' ')
-								.append(filePath).toString();
-						Process proc = rt.exec(pybotCommand);
-						output = new StreamWrapper(proc.getInputStream(),
-								(Test) obj, treeViewer, treeContentProvider, runTestAction, stopTestAction);
-						selectedTest.setStatus("Actual run");
-						selectedTest.setStartTime(System.currentTimeMillis());
-						output.start();
-
-						treeViewer.refresh();
-						treeViewer.expandAll();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					runTestAction.setEnabled(false);
-					stopTestAction.setEnabled(true);
-				}
-			}
-		};
-
-		Image startImgage = Activator.getImageDescriptor("icons/start.gif")
-				.createImage();
-		ImageDescriptor startImageDescriptor = ImageDescriptor
-				.createFromImage(startImgage);
-		runTestAction.setImageDescriptor(startImageDescriptor);
 	}
 
 	private void setDoubleClickAction() {
@@ -239,11 +193,5 @@ public class SampleView extends ViewPart {
 
 	public void setFocus() {
 		treeViewer.getControl().setFocus();
-	}
-	
-	private void loadPluginSettings() {
-		Preferences prefs = new InstanceScope().getNode("RFPlugin");
-		this.projectPath = prefs.get("ProjectPath", "");
-		this.pybotPath = prefs.get("PybotPath", "");
 	}
 }
