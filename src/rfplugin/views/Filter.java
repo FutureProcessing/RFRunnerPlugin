@@ -6,6 +6,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import rfplugin.model.Group;
+import rfplugin.model.Test;
 
 public class Filter extends ViewerFilter {
 	String searchTestName = "";

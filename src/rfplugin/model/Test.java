@@ -1,4 +1,4 @@
-package rfplugin.views;
+package rfplugin.model;
 
 import java.io.File;
 

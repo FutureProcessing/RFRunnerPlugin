@@ -10,6 +10,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.jface.action.Action;
 
+import rfplugin.model.Test;
+
 public class StreamWrapper extends Thread {
 	InputStream inputStream = null;
 	Test actualRunTest = null;

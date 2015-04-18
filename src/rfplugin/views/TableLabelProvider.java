@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import rfplugin.Activator;
 import rfplugin.model.Group;
+import rfplugin.model.Test;
 
 class TableLabelProvider implements ITableLabelProvider {
 	TreeViewer treeViewer;

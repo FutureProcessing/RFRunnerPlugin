@@ -3,8 +3,6 @@ package rfplugin.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import rfplugin.views.Test;
-
 public class Group {
 	private String groupName;
 	private List<Test> tests = new ArrayList<Test>();

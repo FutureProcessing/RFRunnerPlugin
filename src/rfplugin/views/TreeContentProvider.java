@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.osgi.service.prefs.Preferences;
 
 import rfplugin.model.Group;
+import rfplugin.model.Test;
 
 public class TreeContentProvider implements ITreeContentProvider {
 	TreeViewer treeViewer;

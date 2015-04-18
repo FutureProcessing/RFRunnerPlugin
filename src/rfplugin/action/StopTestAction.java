@@ -11,8 +11,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import rfplugin.Activator;
+import rfplugin.model.Test;
 import rfplugin.views.ConsoleManager;
-import rfplugin.views.Test;
 
 public class StopTestAction extends Action{
 	TreeViewer treeViewer;
