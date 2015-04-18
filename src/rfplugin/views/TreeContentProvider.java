@@ -21,11 +21,10 @@ import rfplugin.model.Group;
 import rfplugin.model.Test;
 
 public class TreeContentProvider implements ITreeContentProvider {
-	TreeViewer treeViewer;
-	String projectPath;
-	String pybotPath;
+	private TreeViewer treeViewer;
+	private String projectPath;
 	private List<Test> tests = new ArrayList<Test>();
-	Set<Group> groupsTests = new HashSet();
+	private Set<Group> groupsTests = new HashSet();
 	
 	public TreeContentProvider(TreeViewer treeViewer){
 		this.treeViewer = treeViewer;
@@ -70,7 +69,6 @@ public class TreeContentProvider implements ITreeContentProvider {
 	private void loadPluginSettings() {
 		  Preferences prefs = new InstanceScope().getNode("RFPlugin"); 
 		  projectPath = prefs.get("ProjectPath", "");
-		  pybotPath= prefs.get("PybotPath", "");
 		}
 
 	@Override
@@ -179,7 +177,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 		return groupsTests.toArray();
 	}
 	
-	public boolean listContain(List<Test> list, String query) {
+	private boolean listContain(List<Test> list, String query) {
 		boolean flag = false;
 		for (Test t : list) {
 			if (t.getTestName().equals(query)) {
