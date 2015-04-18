@@ -17,6 +17,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.osgi.service.prefs.Preferences;
 
+import rfplugin.model.Group;
+
 public class TreeContentProvider implements ITreeContentProvider {
 	TreeViewer treeViewer;
 	String projectPath;
@@ -31,7 +33,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		treeViewer.expandAll();
-		return ((Group) parentElement).tests.toArray();
+		return ((Group) parentElement).getTests().toArray();
 	}
 
 	@Override
@@ -147,9 +149,9 @@ public class TreeContentProvider implements ITreeContentProvider {
 					for (Iterator<Group> it = groupsTests.iterator(); it.hasNext(); ) {
 						Group gt = it.next();
 				        if (gt.equals(new Group(test.getStatus()))) {
-				        	List<Test> testsList = gt.tests;
+				        	List<Test> testsList = gt.getTests();
 				        	testsList.add(test);
-				        	gt.tests = testsList;
+				        	gt.setTests(testsList);
 				        	break;
 				        }
 				    }
@@ -164,9 +166,9 @@ public class TreeContentProvider implements ITreeContentProvider {
 					for (Iterator<Group> it = groupsTests.iterator(); it.hasNext(); ) {
 						Group gt = it.next();
 				        if (gt.equals(new Group(test.getFile().getName()))) {
-				        	List<Test> testsList = gt.tests;
+				        	List<Test> testsList = gt.getTests();
 				        	testsList.add(test);
-				        	gt.tests = testsList;
+				        	gt.setTests(testsList);
 				        	break;
 				        }
 				    }

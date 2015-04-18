@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TreeItem;
 
 import rfplugin.Activator;
+import rfplugin.model.Group;
 
 class TableLabelProvider implements ITableLabelProvider {
 	TreeViewer treeViewer;
@@ -92,7 +93,7 @@ class TableLabelProvider implements ITableLabelProvider {
 	}
 
 	private int getGroupSize(Group groupName) {
-		return groupName.tests.size();
+		return groupName.getTests().size();
 	}
 
 	private int getAllTests() {

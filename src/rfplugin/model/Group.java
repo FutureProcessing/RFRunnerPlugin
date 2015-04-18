@@ -1,11 +1,13 @@
-package rfplugin.views;
+package rfplugin.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rfplugin.views.Test;
+
 public class Group {
-	String groupName;
-	List<Test> tests = new ArrayList<Test>();
+	private String groupName;
+	private List<Test> tests = new ArrayList<Test>();
 
 	public Group(String groupName) {
 		this.groupName = groupName;
@@ -16,12 +18,16 @@ public class Group {
 		this.tests.add(test);
 	}
 
-	public void AddTest(Test test) {
-		tests.add(test);
-	}
-
 	public String getGroupName() {
 		return groupName;
+	}
+	
+	public List<Test> getTests(){
+		return tests;
+	}
+	
+	public void setTests(List<Test> tests){
+		this.tests = tests;
 	}
 
 	public boolean equals(Object obj) {

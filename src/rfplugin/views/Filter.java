@@ -5,6 +5,8 @@ import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
+import rfplugin.model.Group;
+
 public class Filter extends ViewerFilter {
 	String searchTestName = "";
 	
