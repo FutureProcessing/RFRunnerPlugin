@@ -4,18 +4,18 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.TreeItem;
-
 import rfplugin.Activator;
 import rfplugin.model.Group;
 import rfplugin.model.Test;
 
 class TableLabelProvider implements ITableLabelProvider {
 	private TreeViewer treeViewer;
+	private TreeContentProvider treeContentProvider;
 	private Group group;
 	
-	public TableLabelProvider(TreeViewer treeViewer){
+	public TableLabelProvider(TreeViewer treeViewer, TreeContentProvider treeContentProvider){
 		this.treeViewer = treeViewer;
+		this.treeContentProvider = treeContentProvider;
 	}
 
 	public Image getColumnImage(Object element, int columnIndex) {
@@ -95,13 +95,6 @@ class TableLabelProvider implements ITableLabelProvider {
 	}
 
 	private int getAllTests() {
-		int count = 0;
-		TreeItem[] items = treeViewer.getTree().getItems();
-	
-		for(TreeItem item : items)
-	    {
-			count += item.getItemCount();
-	    }
-		return count;
+		return treeContentProvider.getTests().size();
 	}
 }

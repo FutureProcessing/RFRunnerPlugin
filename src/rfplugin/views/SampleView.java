@@ -79,7 +79,7 @@ public class SampleView extends ViewPart {
 		
 		treeContentProvider = new TreeContentProvider(treeViewer);
 		treeViewer.setContentProvider(treeContentProvider);
-		treeViewer.setLabelProvider(new TableLabelProvider(treeViewer));
+		treeViewer.setLabelProvider(new TableLabelProvider(treeViewer, treeContentProvider));
 		treeViewer.setInput(getViewSite());
 		treeViewer.addFilter(filter);
 		treeViewer.setSorter(new Sorter());
