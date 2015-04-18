@@ -18,7 +18,7 @@ public class StreamWrapper extends Thread {
 	Action runTestAction;
 	Action stopTestAction;
 
-	StreamWrapper(InputStream inputStream, Test actualRunTest, TreeViewer treeViewer, TreeContentProvider treeContentProvider, Action runTestAction, Action stopTestAction) {
+	public StreamWrapper(InputStream inputStream, Test actualRunTest, TreeViewer treeViewer, TreeContentProvider treeContentProvider, Action runTestAction, Action stopTestAction) {
 		this.inputStream = inputStream;
 		this.actualRunTest = actualRunTest;
 		this.treeViewer = treeViewer;

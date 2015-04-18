@@ -21,6 +21,12 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
+import rfplugin.action.GroupAction;
+import rfplugin.action.RefreshAction;
+import rfplugin.action.RunTestAction;
+import rfplugin.action.SettingsAction;
+import rfplugin.action.StopTestAction;
+
 public class SampleView extends ViewPart {
 	public static final String ID = "rfplugin.views.SampleView";
 	private Action runTestAction;

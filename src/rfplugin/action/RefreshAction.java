@@ -1,7 +1,9 @@
-package rfplugin.views;
+package rfplugin.action;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
+
+import rfplugin.views.TreeContentProvider;
 
 public class RefreshAction extends Action {
 	TreeViewer treeViewer;

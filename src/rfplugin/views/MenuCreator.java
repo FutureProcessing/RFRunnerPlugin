@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-class MenuCreator implements IMenuCreator {
+public class MenuCreator implements IMenuCreator {
 	TreeViewer treeViewer;
 	
 	public MenuCreator(TreeViewer treeViewer){

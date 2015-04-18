@@ -1,4 +1,4 @@
-package rfplugin.views;
+package rfplugin.action;
 
 import java.io.IOException;
 
@@ -11,6 +11,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import rfplugin.Activator;
+import rfplugin.views.ConsoleManager;
+import rfplugin.views.Test;
 
 public class StopTestAction extends Action{
 	TreeViewer treeViewer;

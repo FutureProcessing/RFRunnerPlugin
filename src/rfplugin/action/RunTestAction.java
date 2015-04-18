@@ -1,4 +1,4 @@
-package rfplugin.views;
+package rfplugin.action;
 
 import java.io.IOException;
 
@@ -13,6 +13,10 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import org.osgi.service.prefs.Preferences;
 
 import rfplugin.Activator;
+import rfplugin.views.ConsoleManager;
+import rfplugin.views.StreamWrapper;
+import rfplugin.views.Test;
+import rfplugin.views.TreeContentProvider;
 
 public class RunTestAction extends Action {
 	TreeViewer treeViewer;
