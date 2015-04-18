@@ -118,11 +118,7 @@ public class SampleView extends ViewPart {
 		manager.add(stopTestAction);
 		manager.add(new RefreshAction(treeViewer, treeContentProvider));
 		manager.add(new SettingsAction(treeViewer));
-
-		Action act = new Action("Group", SWT.DROP_DOWN) {
-		};
-		act.setMenuCreator(new MenuCreator(treeViewer));
-		manager.add(act);
+		manager.add(new GroupAction(treeViewer));
 	}
 
 	private void makeActions() {
