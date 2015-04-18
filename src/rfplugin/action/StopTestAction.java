@@ -14,45 +14,48 @@ import rfplugin.Activator;
 import rfplugin.model.Test;
 import rfplugin.views.ConsoleManager;
 
-public class StopTestAction extends Action{
+public class StopTestAction extends Action {
 	TreeViewer treeViewer;
 	Action runTestAction;
 	Image stopImage = Activator.getImageDescriptor("icons/stop.gif")
 			.createImage();
 	ImageDescriptor stopImageDescriptor = ImageDescriptor
 			.createFromImage(stopImage);
-	
-	public StopTestAction(TreeViewer treeViewer){
+
+	public StopTestAction(TreeViewer treeViewer) {
 		this.treeViewer = treeViewer;
 		this.setImageDescriptor(stopImageDescriptor);
 		this.setEnabled(false);
 	}
-	
-	public void setRunTestAction(Action runTestAction){
+
+	public void setRunTestAction(Action runTestAction) {
 		this.runTestAction = runTestAction;
 	}
-	
+
 	public void run() {
 		try {
 			ISelection selection = treeViewer.getSelection();
-			Object obj = ((IStructuredSelection) selection)
-					.getFirstElement();
+			Object obj = ((IStructuredSelection) selection).getFirstElement();
 
 			if (obj instanceof Test) {
-				((Test) obj).setStatus("Not run");
-				treeViewer.refresh();
-				treeViewer.expandAll();
+				if (((Test) obj).getStatus().equals("Actual run")) {
+					((Test) obj).setStatus("Not run");
+					treeViewer.refresh();
+					treeViewer.expandAll();
 
-				Runtime.getRuntime().exec("taskkill /F /IM python.exe");
-				MessageConsoleStream out = ConsoleManager
-						.getMessageConsoleStream("Console");
-				out.println("Test Stop");
+					Runtime.getRuntime().exec("taskkill /F /IM python.exe");
+					MessageConsoleStream out = ConsoleManager
+							.getMessageConsoleStream("Console");
+					out.println("Test Stop");
+					
+					runTestAction.setEnabled(true);
+					this.setEnabled(false);
+				}
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		runTestAction.setEnabled(true);
-		this.setEnabled(false);
+
 	}
 }
