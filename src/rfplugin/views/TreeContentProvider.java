@@ -196,6 +196,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 	}
 	
 	public void clearTests(){
+		groupsTests.clear();
 		tests.clear();
 	}
 }

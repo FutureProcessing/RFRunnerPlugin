@@ -66,7 +66,6 @@ public class SampleView extends ViewPart {
 	public static final String ID = "rfplugin.views.SampleView";
 	private Action runTestAction;
 	private Action stopTestAction;
-	private Action refreshAction;
 
 	String projectPath = null;
 	String pybotPath = null;
@@ -161,7 +160,7 @@ public class SampleView extends ViewPart {
 		
 		manager.add(runTestAction);
 		manager.add(stopTestAction);
-		manager.add(refreshAction);
+		manager.add(new RefreshAction(treeViewer, treeContentProvider));
 		manager.add(new SettingsAction(treeViewer));
 
 		Action act = new Action("Group", SWT.DROP_DOWN) {
@@ -173,14 +172,6 @@ public class SampleView extends ViewPart {
 	private void makeActions() {
 		runTestAction = new RunTestAction(treeViewer, treeContentProvider);
 		stopTestAction = new StopTestAction(treeViewer);
-		
-		refreshAction = new Action() {
-			public void run() {
-				treeContentProvider.clearTests();
-				treeViewer.refresh();
-			}
-		};
-		refreshAction.setText("Refresh");
 	}
 
 	private void setDoubleClickAction() {
