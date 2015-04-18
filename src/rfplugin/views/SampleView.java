@@ -68,13 +68,12 @@ public class SampleView extends ViewPart {
 	private Action stopTestAction;
 	private Action refreshAction;
 
-	private List<Test> tests = new ArrayList<Test>();
 	String projectPath = null;
 	String pybotPath = null;
 	Text filterText = null;
 	Filter filter = new Filter();
+	TreeContentProvider treeContentProvider;
 
-	Set<Group> groupsTests = new HashSet();
 	private TreeViewer treeViewer;
 
 	public void refresh() {
@@ -103,15 +102,16 @@ public class SampleView extends ViewPart {
 						.getMessageConsoleStream("Console");
 				while ((line = br.readLine()) != null) {
 					out.println(line);
-					int index = tests.indexOf(actualRunTest);
-					tests.get(index).setEndTime(System.currentTimeMillis());
+					actualRunTest.setEndTime(System.currentTimeMillis());
 
 					if (line.contains("PASS") || (line.contains("FAIL"))) {
 						if (line.contains("PASS")) {
-							tests.get(index).setStatus("Passed");
+							actualRunTest.setStatus("Passed");
 						} else if (line.contains("FAIL")) {
-							tests.get(index).setStatus("Failed");
+							actualRunTest.setStatus("Failed");
 						}
+						
+						treeContentProvider.updateTest(actualRunTest);
 						runTestAction.setEnabled(true);
 						stopTestAction.setEnabled(false);
 						refresh();
@@ -121,17 +121,6 @@ public class SampleView extends ViewPart {
 				ioe.printStackTrace();
 			}
 		}
-	}
-
-	public boolean listContain(List<Test> list, String query) {
-		boolean flag = false;
-		for (Test t : list) {
-			if (t.getTestName().equals(query)) {
-				flag = true;
-				break;
-			}
-		}
-		return flag;
 	}
 
 	public void createPartControl(Composite parent) {
@@ -174,9 +163,10 @@ public class SampleView extends ViewPart {
 		TreeColumn column2 = new TreeColumn(tree, SWT.RIGHT);
 		column2.setAlignment(SWT.LEFT);
 		column2.setWidth(50);
-
-		treeViewer.setContentProvider(new TreeContentProvider());
-		treeViewer.setLabelProvider(new TableLabelProvider(groupsTests));
+		
+		treeContentProvider = new TreeContentProvider(treeViewer);
+		treeViewer.setContentProvider(treeContentProvider);
+		treeViewer.setLabelProvider(new TableLabelProvider(treeViewer));
 		treeViewer.setInput(getViewSite());
 		treeViewer.addFilter(filter);
 		treeViewer.setSorter(new Sorter());
@@ -195,156 +185,6 @@ public class SampleView extends ViewPart {
 				column1.setWidth(parentWidth - column2.getWidth() - scrollWidth);
 			}
 		});
-	}
-
-	public class TreeContentProvider implements ITreeContentProvider {
-		@Override
-		public Object[] getChildren(Object parentElement) {
-			treeViewer.expandAll();
-			return ((Group) parentElement).tests.toArray();
-		}
-
-		@Override
-		public Object getParent(Object element) {
-			return null;
-		}
-
-		@Override
-		public boolean hasChildren(Object element) {
-			if (element instanceof Test)
-				return false;
-			else if (element instanceof Group)
-				return true;
-			
-			return false;
-		}
-
-		private ArrayList<File> searchRobotFiles(String directoryName,
-				ArrayList<File> files) {
-			File directory = new File(directoryName);
-			for (File file : directory.listFiles()) {
-				if (file.isFile()
-						&& (file.getName().endsWith(".txt") || file.getName()
-								.endsWith(".robot"))) {
-					files.add(file);
-				} else if (file.isDirectory()) {
-					searchRobotFiles(file.getAbsolutePath(), files);
-				}
-			}
-			return files;
-		}
-
-		private void loadPluginSettings() {
-			  Preferences prefs = new InstanceScope().getNode("RFPlugin"); 
-			  projectPath = prefs.get("ProjectPath", "");
-			  pybotPath= prefs.get("PybotPath", "");
-			}
-
-		@Override
-		public Object[] getElements(Object inputElement) {
-			loadPluginSettings();
-			
-			ArrayList<File> filesArray;
-
-			if (projectPath != null) {
-				try {
-					filesArray = searchRobotFiles(projectPath,
-							new ArrayList<File>());
-				} catch (Exception ex) {
-					return new String[] {};
-				}
-
-				if (!filesArray.isEmpty()) {
-					for (File currentFile : filesArray) {
-						FileReader fileReader = null;
-
-						try {
-							fileReader = new FileReader(currentFile);
-							BufferedReader bufferedReader = new BufferedReader(
-									fileReader);
-
-							String currentLine;
-							final String testCasesStarLineRegEx = "\\*+\\s?Test Cases?\\s?\\**";
-							final String testCaseNameRegEx = "^[^\\s|#|*].+";
-
-							while ((currentLine = bufferedReader.readLine()) != null) {
-								if (Pattern.matches(testCasesStarLineRegEx,
-										currentLine)) {
-									while ((currentLine = bufferedReader
-											.readLine()) != null) {
-										if (currentLine.startsWith("*"))
-											break;
-										if (Pattern.matches(testCaseNameRegEx,
-												currentLine)) {
-											Test test = new Test(currentLine,
-													currentFile, "Not run");
-											if (!listContain(tests, currentLine)) {
-												tests.add(test);
-											}
-										}
-									}
-								}
-							}
-							fileReader.close();
-							bufferedReader.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					return groupTests(tests);
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public void dispose() {
-		}
-
-		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-	}
-
-	private Object[] groupTests(List<Test> toList) {	
-		groupsTests.clear();
-		
-		for (Test test : toList) {
-			if (treeViewer.getData("GroupType").equals(GroupType.STATUS)) {
-				if (!groupsTests.contains(new Group(test.getStatus()))){
-					groupsTests.add(new Group(test.getStatus(), test));
-				}
-				else {
-					for (Iterator<Group> it = groupsTests.iterator(); it.hasNext(); ) {
-						Group gt = it.next();
-				        if (gt.equals(new Group(test.getStatus()))) {
-				        	List<Test> testsList = gt.tests;
-				        	testsList.add(test);
-				        	gt.tests = testsList;
-				        	break;
-				        }
-				    }
-				}
-			}
-			
-			else if (treeViewer.getData("GroupType").equals(GroupType.FILE)) {
-				if (!groupsTests.contains(new Group(test.getFile().getName()))){
-					groupsTests.add(new Group(test.getFile().getName(), test));
-				}
-				else {
-					for (Iterator<Group> it = groupsTests.iterator(); it.hasNext(); ) {
-						Group gt = it.next();
-				        if (gt.equals(new Group(test.getFile().getName()))) {
-				        	List<Test> testsList = gt.tests;
-				        	testsList.add(test);
-				        	gt.tests = testsList;
-				        	break;
-				        }
-				    }
-				}
-			}
-		}
-		return groupsTests.toArray();
 	}
 
 	private void setSearchListener() {
@@ -381,7 +221,7 @@ public class SampleView extends ViewPart {
 
 		refreshAction = new Action() {
 			public void run() {
-				tests.clear();
+				treeContentProvider.clearTests();
 				treeViewer.refresh();
 			}
 		};
@@ -389,6 +229,8 @@ public class SampleView extends ViewPart {
 
 		runTestAction = new Action() {
 			public void run() {
+				loadPluginSettings();
+				
 				MessageConsoleStream out = ConsoleManager
 						.getMessageConsoleStream("Console");
 				out.println("");
@@ -445,5 +287,11 @@ public class SampleView extends ViewPart {
 
 	public void setFocus() {
 		treeViewer.getControl().setFocus();
+	}
+	
+	private void loadPluginSettings() {
+		Preferences prefs = new InstanceScope().getNode("RFPlugin");
+		this.projectPath = prefs.get("ProjectPath", "");
+		this.pybotPath = prefs.get("PybotPath", "");
 	}
 }

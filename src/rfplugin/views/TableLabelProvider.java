@@ -1,19 +1,22 @@
 package rfplugin.views;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.TreeItem;
 
 import rfplugin.Activator;
 
 class TableLabelProvider implements ITableLabelProvider {
-	Set<Group> groupsTests;
-
-	public TableLabelProvider(Set<Group> groupsTests) {
-		this.groupsTests = groupsTests;
+	TreeViewer treeViewer;
+	Group group;
+	
+	public TableLabelProvider(TreeViewer treeViewer){
+		this.treeViewer = treeViewer;
 	}
 
 	public Image getColumnImage(Object element, int columnIndex) {
@@ -55,9 +58,11 @@ class TableLabelProvider implements ITableLabelProvider {
 		case 0:
 			if (element instanceof Test)
 				return ((Test) element).getTestName();
-			if (element instanceof Group)
+			if (element instanceof Group){
+				this.group = (Group) element;
 				return String.format("%s (%d of %d)", element.toString(),
 						getGroupSize((Group) element), getAllTests());
+			}
 
 		case 1:
 			if (element instanceof Test) {
@@ -87,21 +92,17 @@ class TableLabelProvider implements ITableLabelProvider {
 	}
 
 	private int getGroupSize(Group groupName) {
-		for (Iterator<Group> it = groupsTests.iterator(); it.hasNext();) {
-			Group gt = it.next();
-			if (gt.equals(new Group(groupName.groupName))) {
-				return gt.tests.size();
-			}
-		}
-		return 0;
+		return groupName.tests.size();
 	}
 
 	private int getAllTests() {
 		int count = 0;
-		for (Iterator<Group> it = groupsTests.iterator(); it.hasNext();) {
-			Group gt = it.next();
-			count += gt.tests.size();
-		}
+		TreeItem[] items = treeViewer.getTree().getItems();
+	
+		for(TreeItem item : items)
+	    {
+			count += item.getItemCount();
+	    }
 		return count;
 	}
 }

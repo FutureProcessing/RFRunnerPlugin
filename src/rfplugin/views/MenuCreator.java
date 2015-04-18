@@ -29,6 +29,7 @@ class MenuCreator implements IMenuCreator {
 				treeViewer.setData("GroupType", GroupType.STATUS);
 				treeViewer.refresh();
 				treeViewer.expandAll();
+				treeViewer.refresh();
 			}
 		});
 		statusItem.setText("Status");
@@ -39,6 +40,7 @@ class MenuCreator implements IMenuCreator {
 				treeViewer.setData("GroupType", GroupType.FILE);
 				treeViewer.refresh();
 				treeViewer.expandAll();
+				treeViewer.refresh();
 			}
 		});
 		fileItem.setText("File");
