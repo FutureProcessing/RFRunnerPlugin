@@ -22,18 +22,14 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
 public class SampleView extends ViewPart {
-
 	public static final String ID = "rfplugin.views.SampleView";
 	private Action runTestAction;
 	private Action stopTestAction;
-
-	String projectPath = null;
-	String pybotPath = null;
-	Text filterText = null;
-	Filter filter = new Filter();
-	TreeContentProvider treeContentProvider;
 	private TreeViewer treeViewer;
-
+	private TreeContentProvider treeContentProvider;
+	private Text filterText = null;
+	private Filter filter = new Filter();
+	
 	public void createPartControl(Composite parent) {
 		GridData parentData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		parent.setLayout(new GridLayout(1, true));
