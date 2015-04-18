@@ -1,12 +1,9 @@
 package rfplugin.views;
 
-import java.util.List;
-
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TreeItem;
 
 import rfplugin.Activator;
@@ -14,8 +11,8 @@ import rfplugin.model.Group;
 import rfplugin.model.Test;
 
 class TableLabelProvider implements ITableLabelProvider {
-	TreeViewer treeViewer;
-	Group group;
+	private TreeViewer treeViewer;
+	private Group group;
 	
 	public TableLabelProvider(TreeViewer treeViewer){
 		this.treeViewer = treeViewer;
