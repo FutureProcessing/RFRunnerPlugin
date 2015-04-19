@@ -35,7 +35,7 @@ public class SampleView extends ViewPart {
 	private TreeContentProvider treeContentProvider;
 	private Text filterText = null;
 	private Filter filter = new Filter();
-	
+
 	public void createPartControl(Composite parent) {
 		GridData parentData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		parent.setLayout(new GridLayout(1, true));
@@ -76,15 +76,16 @@ public class SampleView extends ViewPart {
 		TreeColumn column2 = new TreeColumn(tree, SWT.RIGHT);
 		column2.setAlignment(SWT.LEFT);
 		column2.setWidth(50);
-		
+
 		treeContentProvider = new TreeContentProvider(treeViewer);
 		treeViewer.setContentProvider(treeContentProvider);
-		treeViewer.setLabelProvider(new TableLabelProvider(treeViewer, treeContentProvider));
+		treeViewer.setLabelProvider(new TableLabelProvider(treeViewer,
+				treeContentProvider));
 		treeViewer.setInput(getViewSite());
 		treeViewer.addFilter(filter);
 		treeViewer.setSorter(new Sorter());
 		treeViewer.expandAll();
-		
+
 		makeActions();
 		setDoubleClickAction();
 		createToolbar();
@@ -118,8 +119,8 @@ public class SampleView extends ViewPart {
 
 	private void fillLocalToolBar(IToolBarManager manager) {
 		((RunTestAction) runTestAction).setStopTestAction(stopTestAction);
-        ((StopTestAction) stopTestAction).setRunTestAction(runTestAction);
-		
+		((StopTestAction) stopTestAction).setRunTestAction(runTestAction);
+
 		manager.add(runTestAction);
 		manager.add(stopTestAction);
 		manager.add(new RefreshAction(treeViewer, treeContentProvider));
@@ -135,7 +136,8 @@ public class SampleView extends ViewPart {
 	private void setDoubleClickAction() {
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
-				runTestAction.run();
+				if (runTestAction.isEnabled())
+					runTestAction.run();
 			}
 		});
 	}
